@@ -1,12 +1,12 @@
-{% macro get_relations_by_pattern(schema_pattern, table_pattern, exclude='', database=target.database) %}
-    {{ return(adapter.dispatch('get_relations_by_pattern', 'dbt_utils')(schema_pattern, table_pattern, exclude, database)) }}
+{% macro get_relations_by_pattern(schema_pattern, table_pattern, exclude='', database=target.database,quoting=false) %}
+    {{ return(adapter.dispatch('get_relations_by_pattern', 'dbt_utils')(schema_pattern, table_pattern, exclude, database,quoting)) }}
 {% endmacro %}
 
-{% macro default__get_relations_by_pattern(schema_pattern, table_pattern, exclude='', database=target.database) %}
+{% macro default__get_relations_by_pattern(schema_pattern, table_pattern, exclude='', database=target.database, quoting=false) %}
 
     {%- call statement('get_tables', fetch_result=True) %}
 
-      {{ dbt_utils.get_tables_by_pattern_sql(schema_pattern, table_pattern, exclude, database) }}
+      {{ dbt_utils.get_tables_by_pattern_sql(schema_pattern, table_pattern, exclude, database, quoting) }}
 
     {%- endcall -%}
 
