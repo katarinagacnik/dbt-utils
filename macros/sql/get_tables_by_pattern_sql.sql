@@ -1,13 +1,18 @@
-{% macro get_tables_by_pattern_sql(schema_pattern, table_pattern, exclude='', database=target.database) %}
+{% macro get_tables_by_pattern_sql(schema_pattern, table_pattern, exclude='', database=target.database, quoting=false) %}
     {{ return(adapter.dispatch('get_tables_by_pattern_sql', 'dbt_utils')
-        (schema_pattern, table_pattern, exclude, database)) }}
+        (schema_pattern, table_pattern, exclude, database, quoting)) }}
 {% endmacro %}
 
-{% macro default__get_tables_by_pattern_sql(schema_pattern, table_pattern, exclude='', database=target.database) %}
+{% macro default__get_tables_by_pattern_sql(schema_pattern, table_pattern, exclude='', database=target.database, quoting=false) %}
+        {% if quoting == true %}
+            {% set tbl_name = 'CONCAT(\'"\', table_name, \'"\')' %}
+        {% else %}
+            {% set tbl_name = 'table_name' %}
+        {% endif %}
 
         select distinct
             table_schema as "table_schema",
-            table_name as "table_name",
+            {{ tbl_name }} as "table_name",
             {{ dbt_utils.get_table_types_sql() }}
         from {{ database }}.information_schema.tables
         where table_schema ilike '{{ schema_pattern }}'
